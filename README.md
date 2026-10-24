@@ -1,2 +1,0 @@
-# medallion architecture
- 
