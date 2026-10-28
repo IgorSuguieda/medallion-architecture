@@ -102,12 +102,11 @@ def main():
         GROUP BY (price_range)
         ORDER BY CASE price_range
             WHEN '0-30'    THEN 1
-            WHEN '31-60'   THEN 2
-            WHEN '61-90'   THEN 3
-            WHEN '91-120'  THEN 4
-            WHEN '121-150' THEN 5
-            WHEN '>150'   THEN 6
-            ELSE 7
+            WHEN '>30-60'   THEN 2
+            WHEN '>60-90'   THEN 3
+            WHEN '>90-120'  THEN 4
+            WHEN '>120-150' THEN 5
+            ELSE 6
         END;
         """
     )
