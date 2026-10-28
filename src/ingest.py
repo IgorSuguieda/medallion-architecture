@@ -34,67 +34,71 @@ from uuid import uuid4
 from datetime import datetime, timezone
 import time
 
-# %%
-base_url = 'https://steamspy.com/api.php'
+def main():
+    # %%
+    base_url = 'https://steamspy.com/api.php'
 
-# %%
+    # %%
 
-project_root = Path(__file__).resolve().parent.parent
+    project_root = Path(__file__).resolve().parent.parent
 
-start_date = datetime.now(timezone.utc).isoformat(timespec="seconds")
-bronze = project_root / 'data' / 'bronze'
-collection_date = f"date_{start_date}"
-bronze_dir = bronze / collection_date
+    start_date = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    bronze = project_root / 'data' / 'bronze'
+    collection_date = f"date_{start_date}"
+    bronze_dir = bronze / collection_date
 
-metadata_run_log = 'metadata.json'
-run_log = {
-    "start_collection" : start_date,
-    "source" : base_url,
-    "failed" : [],
-    "success" : []
-}
-
-
-bronze_dir.mkdir(parents=True, exist_ok=True)
+    metadata_run_log = 'metadata.json'
+    run_log = {
+        "start_collection" : start_date,
+        "source" : base_url,
+        "failed" : [],
+        "success" : []
+    }
 
 
-for i in range(0,10):
-    try:
-        if i > 0:
-            time.sleep(60)
-
-        paginated_data = requests.get(
-            url=base_url,
-            params={"request" : "all",
-            "page": i}
-        )
-
-        page = f"page_{i}.json"
+    bronze_dir.mkdir(parents=True, exist_ok=True)
 
 
-        if paginated_data.status_code != 200:
-            raise Exception('Not 200')
-        
-        requested_data = paginated_data.json()
+    for i in range(0,10):
+        try:
+            if i > 0:
+                time.sleep(60)
 
-        for item in requested_data.values():
-            item['ingest_date'] = datetime.now(timezone.utc).isoformat(timespec="seconds")
-        
-        with open(bronze_dir / page, 'w', encoding='utf-8') as json_file:
-            json.dump(requested_data, json_file, indent=4, ensure_ascii=False)
+            paginated_data = requests.get(
+                url=base_url,
+                params={"request" : "all",
+                "page": i}
+            )
 
-    except Exception as error:
-        print(f"[FALHA] : Página {i} não foi coletada\n Erro: {error}")
-        run_log['failed'].append(i)
-        
+            page = f"page_{i}.json"
 
-    else:
-        run_log["success"].append(i)
-        print(f"[SUCESSO] Página {i}")
 
-# %%
-end_date = datetime.now(timezone.utc).isoformat(timespec="seconds")
-run_log['end_collection'] = end_date
+            if paginated_data.status_code != 200:
+                raise Exception('Not 200')
+            
+            requested_data = paginated_data.json()
 
-with open(bronze_dir / metadata_run_log, 'w', encoding='utf-8') as json_file:
-    json.dump(run_log, json_file, indent=4, ensure_ascii=False)
+            for item in requested_data.values():
+                item['ingest_date'] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            
+            with open(bronze_dir / page, 'w', encoding='utf-8') as json_file:
+                json.dump(requested_data, json_file, indent=4, ensure_ascii=False)
+
+        except Exception as error:
+            print(f"[FALHA] : Página {i} não foi coletada\n Erro: {error}")
+            run_log['failed'].append(i)
+            
+
+        else:
+            run_log["success"].append(i)
+            print(f"[SUCESSO] Página {i}")
+
+    # %%
+    end_date = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    run_log['end_collection'] = end_date
+
+    with open(bronze_dir / metadata_run_log, 'w', encoding='utf-8') as json_file:
+        json.dump(run_log, json_file, indent=4, ensure_ascii=False)
+
+if __name__ == "__main__":
+    main()
