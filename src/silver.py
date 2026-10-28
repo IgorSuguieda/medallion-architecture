@@ -81,6 +81,8 @@ df = pd.json_normalize(list_of_json)
 df.dtypes
 print(f'Antes processamento: {len(df)}')
 
+#%%
+df.columns
 # %%
 # owners é um range, quero dar um jeito de transformar isso
 
@@ -136,7 +138,7 @@ df["publisher"] = (
 
 # %% 
 #Crio uma tabela para games
-games = df[['app_id', 'name', 'initial_price']].copy()
+games = df[['app_id', 'name', 'initial_price', 'price', 'discount', 'ccu']].copy()
 
 #Explode expande as linhas: para cada tupla app_id eu terei tuplas = len(app_id) * len(publisher)
 #publisher sera uma coluna com uma lista 
